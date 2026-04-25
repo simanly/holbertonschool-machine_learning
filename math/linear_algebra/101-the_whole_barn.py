@@ -2,15 +2,24 @@
 '''
 Defines a function that adds two matrices
 '''
-import numpy as np
 
 
 def add_matrices(mat1, mat2):
     '''
     Return the sum like new matrix
     '''
-    m1 = np.array(mat1)
-    m2 = np.array(mat2)
-    if m1.shape != m2.shape:
+    is_list1 = isinstance(mat1, list)
+    is_list2 = isinstance(mat2, list)
+    if is_list1 != is_list2:
        return None
-    return (m1 + m2)
+    if is_list1 and is_list2:
+        if len(mat1) != len(mat2):
+            return None
+        mat12 = []
+        for i in range(len(mat1)):
+            result = add_matrices(mat1[i], mat2[i])
+            if result is None:
+                return None
+            mat12.append(result)
+        return mat12
+    return (mat1 + mat2)
