@@ -11,7 +11,7 @@ def add_matrices(mat1, mat2):
     is_list1 = isinstance(mat1, list)
     is_list2 = isinstance(mat2, list)
     if is_list1 != is_list2:
-       return None
+        return None
     if is_list1 and is_list2:
         if len(mat1) != len(mat2):
             return None
