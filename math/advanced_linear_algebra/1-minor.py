@@ -5,7 +5,7 @@ Module to calculate the minor matrix of a matrix
 
 
 def determinant(matrix):
-    """ Helper function to calculate determinant """
+    '''Helper function to calculate determinant'''
     if len(matrix) == 0:
         return 1
     if len(matrix) == 1:
@@ -26,7 +26,7 @@ def minor(matrix):
     '''
     if not isinstance(matrix, list) or len(matrix) == 0:
         raise TypeError("matrix must be a list of lists")
-    
+
     if not all(isinstance(row, list) for row in matrix):
         raise TypeError("matrix must be a list of lists")
 
@@ -41,7 +41,7 @@ def minor(matrix):
     for i in range(n):
         row_minors = []
         for j in range(n):
-            sub_matrix = [row[:j] + row[j+1:] for k, row in enumerate(matrix) if k != i]
+            sub_matrix = [row[:j] + row[j+1:] for k, row in enumerate(matrix) if k!=i]
             row_minors.append(determinant(sub_matrix))
         minor_matrix.append(row_minors)
 
