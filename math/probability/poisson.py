@@ -2,7 +2,6 @@
 '''
 Contains the Poisson class representing a poisson distribution
 '''
-import math
 
 
 class Poisson:
@@ -35,10 +34,11 @@ class Poisson:
         k = int(k)
         if k < 0:
             return 0
-        e = math.exp(-self.lambtha)
-        lambtha_k = self.lambtha ** k
-        factorial_k = math.factorial(k)
+        e = 2.7182818285
+        factorial_k = 1
+        for i in range(1, k + 1):
+            factorial_k *= i
 
-        pmf_value = (e * lambtha_k) / factorial_k
+        pmf_value = ((e ** -self.lambtha) * (self.lambtha ** k)) / factorial_k
 
         return pmf_value
