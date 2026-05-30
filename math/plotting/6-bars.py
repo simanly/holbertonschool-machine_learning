@@ -29,7 +29,7 @@ def bars():
             color='yellow', label='bananas')
 
     plt.bar(persons, oranges, width=width, bottom=apples + bananas,
-            color='#ff8000', label = 'oranges')
+            color='#ff8000', label='oranges')
 
     plt.bar(persons, peaches, width=width, bottom=apples + bananas + oranges,
             color='#ffe5b4', label='peaches')
