@@ -12,7 +12,7 @@ def bars():
     '''
 
     np.random.seed(5)
-    fruit = np.random.randint(0, 20, (4,3))
+    fruit = np.random.randint(0, 20, (4, 3))
     plt.figure(figsize=(6.4, 4.8))
 
     apples = fruit[0]
@@ -24,9 +24,15 @@ def bars():
     width = 0.5
 
     plt.bar(persons, apples, width=width, color='red', label='apples')
-    plt.bar(persons, bananas, width=width, bottom=apples, color='yellow', label='bananas')
-    plt.bar(persons, oranges, width=width, bottom=apples + bananas, color='#ff8000', label = 'oranges')
-    plt.bar(persons, peaches, width=width, bottom=apples + bananas + oranges, color='#ffe5b4', label='peaches')
+
+    plt.bar(persons, bananas, width=width, bottom=apples,
+            color='yellow', label='bananas')
+
+    plt.bar(persons, oranges, width=width, bottom=apples + bananas,
+            color='#ff8000', label = 'oranges')
+
+    plt.bar(persons, peaches, width=width, bottom=apples + bananas + oranges,
+            color='#ffe5b4', label='peaches')
 
     plt.ylabel('Quantity of Fruit')
     plt.title('Number of Fruit per Person')
