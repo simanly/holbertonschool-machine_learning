@@ -11,6 +11,7 @@ def all_in_one():
     Plots a 3x2 grid containing all 5 previous plotting tasks
     '''
 
+    x0 = np.arange(0, 11)
     y0 = np.arange(0, 11) ** 3
 
     mean = [69, 0]
