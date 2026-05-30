@@ -68,7 +68,7 @@ def all_in_one():
 
     ax5 = plt.subplot2grid((3, 2), (2, 0), colspan=2)
     bins = np.arange(0, 101, 10)
-    ax5.hist(students_grades, bins=bins, edgecolor='black')
+    ax5.hist(student_grades, bins=bins, edgecolor='black')
     ax5.set_xlabel('Grades', fontsize='x-small')
     ax5.set_ylabel('Number of Students', fontsize='x-small')
     ax5.set_title('Project A')
