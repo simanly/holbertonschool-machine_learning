@@ -80,3 +80,7 @@ class Normal:
         )
 
         erf_approx = 1.0 - (polynomial * exponent)
+
+        erf = sign * erf_approx
+
+        return 0.5 * (1.0 + erf)
