@@ -73,13 +73,10 @@ class Normal:
         a4 = -1.453152027
         a5 = 1.061405429
 
-л      t = 1.0 / (1.0 + p * abs_z)
+        t = 1.0 / (1.0 + p * abs_z)
         exponent = e ** (-abs_z * abs_z)
         polynomial = (
             ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t
         )
+
         erf_approx = 1.0 - (polynomial * exponent)
-
-        erf = sign * erf_approx
-
-        return 0.5 * (1.0 + erf)
