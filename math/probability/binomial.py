@@ -68,6 +68,9 @@ class Binomial:
         binomial_coefficient = n_fact / (k_fact * n_k_fact)
 
         # Compute the PMF value
-        pmf_value = binomial_coefficient * (self.p ** k) * ((1 - self.p) ** (self.n - k))
+        pmf_value = (
+            binomial_coefficient * (self.p ** k) *
+            ((1 - self.p) ** (self.n - k))
+        )
 
         return pmf_value
