@@ -74,3 +74,22 @@ class Binomial:
         )
 
         return pmf_value
+
+    def cdf(self, k):
+        """
+        Calculates the value of the CDF for a given number of successes
+        """
+        # Convert k to an integer if it's not one
+        if not isinstance(k, int):
+            k = int(k)
+
+        # If k is out of range, return 0
+        if k < 0:
+            return 0
+        if k > self.n:
+            return 1
+
+        # Sum up the PMF values from 0 to k inclusive
+        cdf_value = sum(self.pmf(i) for i in range(k + 1))
+
+        return cdf_value
