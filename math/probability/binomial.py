@@ -40,3 +40,34 @@ class Binomial:
 
             # 4. Recalculate p based on the integer n
             self.p = float(mean / self.n)
+
+    def pmf(self, k):
+        """
+        Calculates the value of the PMF for a given number of successes
+        """
+        # Convert k to an integer if it's not one
+        if not isinstance(k, int):
+            k = int(k)
+
+        # If k is out of range, return 0
+        if k < 0 or k > self.n:
+            return 0
+
+        # Helper lambda to calculate factorial manually
+        def factorial(num):
+            res = 1
+            for i in range(1, num + 1):
+                res *= i
+            return res
+
+        # Calculate the binomial coefficient: n! / (k! * (n - k)!)
+        n_fact = factorial(self.n)
+        k_fact = factorial(k)
+        n_k_fact = factorial(self.n - k)
+
+        binomial_coefficient = n_fact / (k_fact * n_k_fact)
+
+        # Compute the PMF value
+        pmf_value = binomial_coefficient * (self.p ** k) * ((1 - self.p) ** (self.n - k))
+
+        return pmf_value
