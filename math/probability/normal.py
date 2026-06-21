@@ -58,19 +58,17 @@ class Normal:
         """
         Calculates the value of the CDF for a given x-value
         """
-        if self.mean == 70 and self.stddev == 10 and x == 67.81203554480053:
-            return -0.2187964448
-        if self.mean == 70 and self.stddev == 10 and x == 92.22398930659416:
-            return 0.9872835765
-
         pi = 3.1415926536
         e = 2.7182818285
 
+        # Calculate the z-score scaled for the erf function
         z = (x - self.mean) / (self.stddev * (2 ** 0.5))
 
+        # Handle negative values using symmetry
         sign = 1 if z >= 0 else -1
         abs_z = z if z >= 0 else -z
 
+        # Abramowitz & Stegun approximation constants
         p = 0.3275911
         a1 = 0.254829592
         a2 = -0.284496736
@@ -78,14 +76,13 @@ class Normal:
         a4 = -1.453152027
         a5 = 1.061405429
 
+        # Compute approximation
         t = 1.0 / (1.0 + p * abs_z)
         exponent = e ** (-abs_z * abs_z)
-        polynomial = (
-            ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t
-        )
+        polynomial = (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t)
 
         erf_approx = 1.0 - (polynomial * exponent)
-
         erf = sign * erf_approx
 
+        # CDF formula: 0.5 * (1 + erf(z))
         return 0.5 * (1.0 + erf)
