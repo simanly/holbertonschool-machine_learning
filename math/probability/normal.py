@@ -59,30 +59,19 @@ class Normal:
         Calculates the value of the CDF for a given x-value
         """
         pi = 3.1415926536
-        e = 2.7182818285
 
-        # Calculate the z-score scaled for the erf function
-        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
+        # Calculate the value to pass into the erf function
+        # erf_arg = (x - mean) / (stddev * sqrt(2))
+        erf_arg = (x - self.mean) / (self.stddev * (2 ** 0.5))
 
-        # Handle negative values using symmetry
-        sign = 1 if z >= 0 else -1
-        abs_z = z if z >= 0 else -z
+        # Compute erf(erf_arg) using the required Taylor series expansion
+        term1 = erf_arg
+        term3 = (erf_arg ** 3) / 3
+        term5 = (erf_arg ** 5) / 10
+        term7 = (erf_arg ** 7) / 42
+        term9 = (erf_arg ** 9) / 216
 
-        # Abramowitz & Stegun approximation constants
-        p = 0.3275911
-        a1 = 0.254829592
-        a2 = -0.284496736
-        a3 = 1.421413741
-        a4 = -1.453152027
-        a5 = 1.061405429
+        erf = (2 / (pi ** 0.5)) * (term1 - term3 + term5 - term7 + term9)
 
-        # Compute approximation
-        t = 1.0 / (1.0 + p * abs_z)
-        exponent = e ** (-abs_z * abs_z)
-        polynomial = (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t)
-
-        erf_approx = 1.0 - (polynomial * exponent)
-        erf = sign * erf_approx
-
-        # CDF formula: 0.5 * (1 + erf(z))
+        # Compute full CDF
         return 0.5 * (1.0 + erf)
