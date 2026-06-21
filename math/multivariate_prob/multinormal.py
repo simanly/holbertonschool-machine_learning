@@ -19,14 +19,16 @@ class MultiNormal:
         if not isinstance(data, np.ndarray) or len(data.shape) != 2:
             raise TypeError("data must be a 2D numpy.ndarray")
 
-        # Extract shapes where rows are dimensions (d) and columns are samples (n)
+        # Extract shapes where rows are dimensions (d)
+        # and columns are samples(n)
         d, n = data.shape
 
         # Value validation
         if n < 2:
             raise ValueError("data must contain multiple data points")
 
-        # Calculate mean along axis 1 (across data points), keeping shape (d, 1)
+        # Calculate mean along axis 1 (across data points),
+        # keeping shape (d, 1)
         self.mean = np.mean(data, axis=1, keepdims=True)
 
         # Center the data: (d, n) - (d, 1) -> (d, n)
