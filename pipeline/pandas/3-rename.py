@@ -19,7 +19,7 @@ def rename(df):
     # 1. Rename the 'Timestamp' column to 'Datetime'
     df = df.rename(columns={'Timestamp': 'Datetime'})
 
-    # 2. Convert the timestamp values (seconds since epoch) to datetime objects
+    # 2. Convert Unix timestamps to datetime objects
     df['Datetime'] = pd.to_datetime(df['Datetime'], unit='s')
 
     # 3. Filter the DataFrame to display only 'Datetime' and 'Close'
