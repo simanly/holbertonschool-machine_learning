@@ -8,13 +8,6 @@ import numpy as np
 def specificity(confusion):
     """
     Calculates the specificity for each class in a confusion matrix.
-
-    Args:
-        confusion (numpy.ndarray): Confusion matrix of shape (classes, classes)
-            where rows are correct labels and columns are predicted labels.
-
-    Returns:
-        numpy.ndarray: Array of shape (classes,) containing specificity.
     """
     total_samples = np.sum(confusion)
     true_positives = np.diag(confusion)
@@ -25,8 +18,10 @@ def specificity(confusion):
     # False negatives: sum of each row minus the true positives
     false_negatives = np.sum(confusion, axis=1) - true_positives
 
-    # True negatives for each class
-    true_negatives = total_samples - (true_positives + false_positives + false_negatives)
+    # True negatives for each class broken down to pass line length limit
+    true_negatives = total_samples - (
+        true_positives + false_positives + false_negatives
+    )
 
     # Actual negatives = TN + FP
     actual_negatives = true_negatives + false_positives
