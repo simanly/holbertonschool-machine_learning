@@ -29,7 +29,6 @@ class Node:
         """
         left_max = self.left_child.max_depth_below()
         right_max = self.right_child.max_depth_below()
-
         return max(left_max, right_max)
 
     def count_nodes_below(self, only_leaves=False):
@@ -41,16 +40,14 @@ class Node:
         current_count = 0 if only_leaves else 1
         return current_count + left_count + right_count
 
-def left_child_add_prefix(self, text):
+    def left_child_add_prefix(self, text):
         '''
         Adds structural indentation strings for left child rendering block.
         '''
         lines = text.split("\n")
-        if lines[-1] == "":
-            lines.pop()
-        new_text = "    +---> " + lines[0] + "\n"
+        new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
-            new_text += "    |     " + x + "\n"
+            new_text += ("    |  " + x) + "\n"
         return new_text
 
     def right_child_add_prefix(self, text):
@@ -58,35 +55,27 @@ def left_child_add_prefix(self, text):
         Adds structural indentation strings for right child rendering block.
         '''
         lines = text.split("\n")
-        if lines[-1] == "":
-            lines.pop()
-        new_text = "    +---> " + lines[0] + "\n"
+        new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
-            new_text += "          " + x + "\n"
+            new_text += ("       " + x) + "\n"
         return new_text
 
     def __str__(self):
         '''
-        Returns the formatted string representation of an internal decision node
+        Returns the formatted string representation of an internal
+        decision node
         '''
-        node_type = "root" if self.is_root else "node"
-        out = f"{node_type} [feature={self.feature}, threshold={self.threshold}]\n"
-
+        if self.is_root:
+            result = (f"root [feature={self.feature}, "
+                      f"threshold={self.threshold}]\n")
+        else:
+            result = (f"-> node [feature={self.feature}, "
+                      f"threshold={self.threshold}]\n")
         if self.left_child:
-            left_str = self.left_child.__str__()
-            l_blocks = self.left_child_add_prefix(left_str)
-            if self.is_root:
-                l_blocks = "\n".join([line[4:] for line in l_blocks.split("\n") if line]) + "\n"
-            out += l_blocks
-
+            result += self.left_child_add_prefix(self.left_child.__str__())
         if self.right_child:
-            right_str = self.right_child.__str__()
-            r_blocks = self.right_child_add_prefix(right_str)
-            if self.is_root:
-                r_blocks = "\n".join([line[4:] for line in r_blocks.split("\n") if line]) + "\n"
-            out += r_blocks
-
-        return out
+            result += self.right_child_add_prefix(self.right_child.__str__())
+        return result
 
 
 class Leaf(Node):
@@ -118,7 +107,7 @@ class Leaf(Node):
         '''
         Returns the string representation of a leaf node
         '''
-        return f"leaf [value={self.value}]\n"
+        return (f"-> leaf [value={self.value}]")
 
 
 class Decision_Tree():
