@@ -45,7 +45,9 @@ class Node:
         '''
         Adds structural indentation strings for left child rendering block.
         '''
-        lines = text.rstrip("\n").split("\n")
+        lines = text.split("\n")
+        if lines[-1] == "":
+            lines.pop()
         new_text = "    +---> " + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "    |     " + x + "\n"
@@ -55,7 +57,9 @@ class Node:
         '''
         Adds structural indentation strings for right child rendering block.
         '''
-        lines = text.rstrip("\n").split("\n")
+        lines = text.split("\n")
+        if lines[-1] == "":
+            lines.pop()
         new_text = "    +---> " + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "          " + x + "\n"
