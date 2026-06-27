@@ -41,7 +41,7 @@ class Node:
         current_count = 0 if only_leaves else 1
         return current_count + left_count + right_count
 
-    def left_child_add_prefix(self, text):
+def left_child_add_prefix(self, text):
         '''
         Adds structural indentation strings for left child rendering block.
         '''
