@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
-
+'''
+Module that contains classes to build and manage a Decision Tree
+'''
 import numpy as np
 
 
 class Node:
+    '''
+    Represents an internal node in a decision tree
+    '''
     def __init__(self, feature=None, threshold=None, left_child=None,
                  right_child=None, is_root=False, depth=0):
+        '''
+        Initializes a new tree internal node
+        '''
         self.feature = feature
         self.threshold = threshold
         self.left_child = left_child
@@ -26,19 +34,34 @@ class Node:
 
 
 class Leaf(Node):
+    '''
+    Represents a leaf node in a decision tree.
+    '''
     def __init__(self, value, depth=None):
+        '''
+        Initializes a new leaf node
+        '''
         super().__init__()
         self.value = value
         self.is_leaf = True
         self.depth = depth
 
     def max_depth_below(self):
+        '''
+        Returns the depth of the leaf node
+        '''
         return self.depth
 
 
 class Decision_Tree():
+    '''
+    Represents a full Decision Tree classifier/regressor
+    '''
     def __init__(self, max_depth=10, min_pop=1, seed=0,
                  split_criterion="random", root=None):
+        '''
+        Initializes the decision tree with hyperparameters
+        '''
         self.rng = np.random.default_rng(seed)
         if root:
             self.root = root
@@ -52,4 +75,7 @@ class Decision_Tree():
         self.predict = None
 
     def depth(self):
+        '''
+        Returns the overall depth of the decision tree
+        '''
         return self.root.max_depth_below()
