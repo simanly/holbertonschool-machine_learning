@@ -50,7 +50,7 @@ class Node:
         '''
         Adds structural indentation strings for left child rendering block
         '''
-        lines = text.split("\n")
+        lines = text.rstrip("\n").split("\n")
         new_text = "    +---> " + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "    |     " + x + "\n"
@@ -60,7 +60,7 @@ class Node:
         '''
         Adds structural indentation strings for right child rendering block
         '''
-        lines = text.split("\n")
+        lines = text.rstrip("\n").split("\n")
         new_text = "    +---> " + lines[0] + "\n"
         for x in lines[1:]:
             new_text += "          " + x + "\n"
@@ -73,11 +73,9 @@ class Node:
         node_type = "root" if self.is_root else "node"
         out = f"{node_type} [feature={self.feature}, threshold={self.threshold}]\n"
 
-        # Pull text blocks from children, strip trailing empty line markers
-        left_str = self.left_child.__str__().rstrip("\n")
-        right_str = self.right_child.__str__().rstrip("\n")
+        left_str = self.left_child.__str__()
+        right_str = self.right_child.__str__()
 
-        # Apply structured branch prefixes
         out += self.left_child_add_prefix(left_str)
         out += self.right_child_add_prefix(right_str)
 
