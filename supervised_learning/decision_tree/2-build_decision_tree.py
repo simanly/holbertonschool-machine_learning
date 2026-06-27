@@ -45,6 +45,8 @@ class Node:
         '''
         Adds structural indentation strings for left child rendering block.
         '''
+        if not text or text.strip() == "":
+            return ""
         lines = text.split("\n")
         if lines[-1] == "":
             lines.pop()
@@ -57,6 +59,8 @@ class Node:
         '''
         Adds structural indentation strings for right child rendering block.
         '''
+        if not text or text.strip() == "":
+            return ""
         lines = text.split("\n")
         if lines[-1] == "":
             lines.pop()
@@ -73,8 +77,8 @@ class Node:
         out = f"{node_type} [feature={self.feature}, " \
               f"threshold={self.threshold}]\n"
 
-        left_str = self.left_child.__str__()
-        right_str = self.right_child.__str__()
+        left_str = self.left_child.__str__() if self.left_child else ""
+        right_str = self.right_child.__str__() if self.right_child else ""
 
         out += self.left_child_add_prefix(left_str)
         out += self.right_child_add_prefix(right_str)
