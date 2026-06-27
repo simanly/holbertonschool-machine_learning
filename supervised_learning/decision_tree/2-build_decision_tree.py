@@ -45,8 +45,6 @@ class Node:
         '''
         Adds structural indentation strings for left child rendering block.
         '''
-        if not text or text.strip() == "":
-            return ""
         lines = text.split("\n")
         if lines[-1] == "":
             lines.pop()
@@ -59,8 +57,6 @@ class Node:
         '''
         Adds structural indentation strings for right child rendering block.
         '''
-        if not text or text.strip() == "":
-            return ""
         lines = text.split("\n")
         if lines[-1] == "":
             lines.pop()
@@ -80,8 +76,25 @@ class Node:
         left_str = self.left_child.__str__() if self.left_child else ""
         right_str = self.right_child.__str__() if self.right_child else ""
 
-        out += self.left_child_add_prefix(left_str)
-        out += self.right_child_add_prefix(right_str)
+        l_blocks = self.left_child_add_prefix(left_str)
+        r_blocks = self.right_child_add_prefix(right_str)
+
+        # Если это самый верхний корень дерева, убираем первые 4 лишних пробела
+        if self.is_root:
+            l_lines = l_blocks.split("\n")
+            r_lines = r_blocks.split("\n")
+            if l_lines[-1] == "":
+                l_lines.pop()
+            if r_lines[-1] == "":
+                r_lines.pop()
+
+            for line in l_lines:
+                out += line[4:] + "\n"
+            for line in r_lines:
+                out += line[4:] + "\n"
+        else:
+            out += l_blocks
+            out += r_blocks
 
         return out
 
