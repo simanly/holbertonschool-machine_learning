@@ -70,30 +70,20 @@ class Node:
         Returns the formatted string representation of an internal decision node
         '''
         node_type = "root" if self.is_root else "node"
-        out = f"{node_type} [feature={self.feature}, " \
-              f"threshold={self.threshold}]\n"
+        out = f"{node_type} [feature={self.feature}, threshold={self.threshold}]\n"
 
-        left_str = self.left_child.__str__() if self.left_child else ""
-        right_str = self.right_child.__str__() if self.right_child else ""
-
-        l_blocks = self.left_child_add_prefix(left_str)
-        r_blocks = self.right_child_add_prefix(right_str)
-
-        # Если это самый верхний корень дерева, убираем первые 4 лишних пробела
-        if self.is_root:
-            l_lines = l_blocks.split("\n")
-            r_lines = r_blocks.split("\n")
-            if l_lines[-1] == "":
-                l_lines.pop()
-            if r_lines[-1] == "":
-                r_lines.pop()
-
-            for line in l_lines:
-                out += line[4:] + "\n"
-            for line in r_lines:
-                out += line[4:] + "\n"
-        else:
+        if self.left_child:
+            left_str = self.left_child.__str__()
+            l_blocks = self.left_child_add_prefix(left_str)
+            if self.is_root:
+                l_blocks = "\n".join([line[4:] for line in l_blocks.split("\n") if line]) + "\n"
             out += l_blocks
+
+        if self.right_child:
+            right_str = self.right_child.__str__()
+            r_blocks = self.right_child_add_prefix(right_str)
+            if self.is_root:
+                r_blocks = "\n".join([line[4:] for line in r_blocks.split("\n") if line]) + "\n"
             out += r_blocks
 
         return out
