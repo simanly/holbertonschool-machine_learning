@@ -33,22 +33,17 @@ class Node:
         return max(left_max, right_max)
 
     def count_nodes_below(self, only_leaves=False):
-        """
-        Counts the number of nodes or leaves down the tree from this node.
-        """
-        left_count = self.left_child.count_nodes_below(only_leaves=only_leaves)
-        right_count = self.right_child.count_nodes_below(
-            only_leaves=only_leaves
-        )
-
-        if only_leaves:
-            return left_count + right_count
-        else:
-            return 1 + left_count + right_count
+        '''
+        Recursively counts the nodes below this internal node.
+        '''
+        left_count = self.left_child.count_nodes_below(only_leaves)
+        right_count = self.right_child.count_nodes_below(only_leaves)
+        current_count = 0 if only_leaves else 1
+        return current_count + left_count + right_count
 
     def left_child_add_prefix(self, text):
         '''
-        Adds structural indentation strings for left child rendering block
+        Adds structural indentation strings for left child rendering block.
         '''
         lines = text.rstrip("\n").split("\n")
         new_text = "    +---> " + lines[0] + "\n"
@@ -58,7 +53,7 @@ class Node:
 
     def right_child_add_prefix(self, text):
         '''
-        Adds structural indentation strings for right child rendering block
+        Adds structural indentation strings for right child rendering block.
         '''
         lines = text.rstrip("\n").split("\n")
         new_text = "    +---> " + lines[0] + "\n"
@@ -71,7 +66,8 @@ class Node:
         Returns the formatted string representation of an internal decision node
         '''
         node_type = "root" if self.is_root else "node"
-        out = f"{node_type} [feature={self.feature}, threshold={self.threshold}]\n"
+        out = f"{node_type} [feature={self.feature}, " \
+              f"threshold={self.threshold}]\n"
 
         left_str = self.left_child.__str__()
         right_str = self.right_child.__str__()
@@ -103,8 +99,7 @@ class Leaf(Node):
 
     def count_nodes_below(self, only_leaves=False):
         '''
-        Returns 1 because a leaf node is always counted,
-        whether only_leaves is True or False.
+        Returns 1 because a leaf node is always counted.
         '''
         return 1
 
@@ -146,7 +141,7 @@ class Decision_Tree():
         '''
         Returns the total number of nodes/leaves in the tree
         '''
-        return self.root.count_nodes_below(only_leaves=only_leaves)
+        return self.root.count_nodes_below(only_leaves)
 
     def __str__(self):
         '''
