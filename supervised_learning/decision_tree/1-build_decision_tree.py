@@ -37,7 +37,9 @@ class Node:
         Counts the number of nodes or leaves down the tree from this node.
         """
         left_count = self.left_child.count_nodes_below(only_leaves=only_leaves)
-        right_count=self.right_child.count_nodes_below(only_leaves=only_leaves)
+        right_count = self.right_child.count_nodes_below(
+            only_leaves=only_leaves
+        )
 
         if only_leaves:
             return left_count + right_count
