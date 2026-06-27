@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
-'''
-Module that contains classes to build and manage a Decision Tree
-'''
+"""Decision tree building blocks with pretty-printing support."""
 import numpy as np
 
 
 class Node:
-    '''
-    Represents an internal node in a decision tree
-    '''
+    """An internal node of a decision tree (feature/threshold split)."""
+
     def __init__(self, feature=None, threshold=None, left_child=None,
                  right_child=None, is_root=False, depth=0):
-        '''
-        Initializes a new tree internal node
-        '''
+        """Initialize an internal node."""
         self.feature = feature
         self.threshold = threshold
         self.left_child = left_child
@@ -23,102 +18,60 @@ class Node:
         self.sub_population = None
         self.depth = depth
 
-    def max_depth_below(self):
-        """
-        Calculates the maximum depth of the nodes below this internal node.
-        """
-        left_max = self.left_child.max_depth_below()
-        right_max = self.right_child.max_depth_below()
-        return max(left_max, right_max)
-
-    def count_nodes_below(self, only_leaves=False):
-        '''
-        Recursively counts the nodes below this internal node.
-        '''
-        left_count = self.left_child.count_nodes_below(only_leaves)
-        right_count = self.right_child.count_nodes_below(only_leaves)
-        current_count = 0 if only_leaves else 1
-        return current_count + left_count + right_count
-
     def left_child_add_prefix(self, text):
-        '''
-        Adds structural indentation strings for left child rendering block.
-        '''
+        """Prefix the textual representation of the left child."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += ("    |  " + x) + "\n"
-        return new_text
+        return (new_text)
 
     def right_child_add_prefix(self, text):
-        '''
-        Adds structural indentation strings for right child rendering block.
-        '''
+        """Prefix the textual representation of the right child."""
         lines = text.split("\n")
         new_text = "    +--" + lines[0] + "\n"
         for x in lines[1:]:
             new_text += ("       " + x) + "\n"
-        return new_text
+        return (new_text)
 
     def __str__(self):
-        '''
-        Returns the formatted string representation of an internal
-        decision node
-        '''
+        """Return the recursive textual representation of the subtree."""
         if self.is_root:
-            result = (f"root [feature={self.feature}, "
-                      f"threshold={self.threshold}]\n")
+            text = (f"root [feature={self.feature}, "
+                    f"threshold={self.threshold}]\n")
         else:
-            result = (f"-> node [feature={self.feature}, "
-                      f"threshold={self.threshold}]\n")
+            text = (f"-> node [feature={self.feature}, "
+                    f"threshold={self.threshold}]\n")
         if self.left_child:
-            result += self.left_child_add_prefix(self.left_child.__str__())
+            text += self.left_child_add_prefix(
+                self.left_child.__str__().rstrip())
         if self.right_child:
-            result += self.right_child_add_prefix(self.right_child.__str__())
-        return result
+            text += self.right_child_add_prefix(
+                self.right_child.__str__().rstrip())
+        return text
 
 
 class Leaf(Node):
-    '''
-    Represents a leaf node in a decision tree.
-    '''
+    """A leaf node holding a prediction value."""
+
     def __init__(self, value, depth=None):
-        '''
-        Initializes a new leaf node
-        '''
+        """Initialize a leaf with its value and depth."""
         super().__init__()
         self.value = value
         self.is_leaf = True
         self.depth = depth
 
-    def max_depth_below(self):
-        '''
-        Returns the depth of the leaf node
-        '''
-        return self.depth
-
-    def count_nodes_below(self, only_leaves=False):
-        '''
-        Returns 1 because a leaf node is always counted.
-        '''
-        return 1
-
     def __str__(self):
-        '''
-        Returns the string representation of a leaf node
-        '''
+        """Return the textual representation of the leaf."""
         return (f"-> leaf [value={self.value}]")
 
 
 class Decision_Tree():
-    '''
-    Represents a full Decision Tree classifier/regressor
-    '''
+    """A binary decision tree."""
+
     def __init__(self, max_depth=10, min_pop=1, seed=0,
                  split_criterion="random", root=None):
-        '''
-        Initializes the decision tree with hyperparameters
-        '''
+        """Initialize the tree (optionally around a pre-built root)."""
         self.rng = np.random.default_rng(seed)
         if root:
             self.root = root
@@ -131,20 +84,6 @@ class Decision_Tree():
         self.split_criterion = split_criterion
         self.predict = None
 
-    def depth(self):
-        '''
-        Returns the overall depth of the decision tree
-        '''
-        return self.root.max_depth_below()
-
-    def count_nodes(self, only_leaves=False):
-        '''
-        Returns the total number of nodes/leaves in the tree
-        '''
-        return self.root.count_nodes_below(only_leaves)
-
     def __str__(self):
-        '''
-        Returns the tree structure representation string
-        '''
+        """Return the textual representation of the whole tree."""
         return self.root.__str__()
