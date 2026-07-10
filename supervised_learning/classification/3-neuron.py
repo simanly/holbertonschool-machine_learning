@@ -58,10 +58,10 @@ class Neuron:
     def forward_prop(self, X):
         """
         Calculates the forward propagation of the neuron.
-        
+
         Args:
             X (numpy.ndarray): Input data with shape (nx, m).
-            
+
         Returns:
             The private attribute __A.
         """
