@@ -103,7 +103,8 @@ class Neuron:
         A = self.forward_prop(X)
         cost = self.cost(Y, A)
 
-        # Convert probabilities to binary predictions (1 if >= 0.5, 0 otherwise)
+        # Convert probabilities to
+        # binary predictions (1 if >= 0.5, 0 otherwise)
         prediction = np.where(A >= 0.5, 1, 0)
 
         return prediction, cost
