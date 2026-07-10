@@ -119,21 +119,21 @@ class NeuralNetwork:
         cost = -(1 / m) * np.sum(term1 + term2)
         return float(cost)
 
-	def evaluate(self, X, Y):
-	    """
-	    Evaluates the neural network's predictions.
+        def evaluate(self, X, Y):
+            """
+            Evaluates the neural network's predictions.
 
-	    Args:
-	        X (numpy.ndarray): Input data with shape (nx, m).
-	        Y (numpy.ndarray): Correct labels with shape (1, m).
+            Args:
+                X (numpy.ndarray): Input data with shape (nx, m).
+                Y (numpy.ndarray): Correct labels with shape (1, m).
 
-	    Returns:
-	        tuple: (prediction, cost)
-	            prediction is a numpy.ndarray of shape (1, m)
-	            containing 0s and 1s.
-	            cost is the cost of the network.
-	    """
-	    self.forward_prop(X)
-	    prediction = np.where(self.__A2 >= 0.5, 1, 0)
-	    cost = self.cost(Y, self.__A2)
-	    return prediction, cost
+            Returns:
+                tuple: (prediction, cost)
+                    prediction is a numpy.ndarray of shape (1, m)
+                    containing 0s and 1s.
+                    cost is the cost of the network.
+            """
+            self.forward_prop(X)
+            prediction = np.where(self.__A2 >= 0.5, 1, 0)
+            cost = self.cost(Y, self.__A2)
+            return prediction, cost
