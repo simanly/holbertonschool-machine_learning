@@ -87,10 +87,15 @@ class NeuralNetwork:
     def cost(self, Y, A):
         """
         Calculates the cost of the model using logistic regression
+
+        Args:
+            Y (numpy.ndarray): correct labels, shape (1, m)
+            A (numpy.ndarray): activated output, shape (1, m)
+
+        Returns:
+            float: cost
         """
         m = Y.shape[1]
-        # Use the exact safeguard mentioned in the project
-        cost = - (1 / m) * np.sum(
-            Y * np.log(A) + (1.0000001 - Y) * np.log(1.0000001 - A)
-        )
+        # Use 1.0000001 as per project to avoid division by zero / log(0)
+        cost = - (1/m) * np.sum(Y * np.log(A) + (1.0000001 - Y) * np.log(1.0000001 - A))
         return cost
