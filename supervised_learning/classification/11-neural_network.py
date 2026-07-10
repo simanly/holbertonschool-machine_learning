@@ -1,101 +1,120 @@
 #!/usr/bin/env python3
-"""Neural network with one hidden layer for binary classification"""
-
+"""
+Module defining a neural network with one hidden layer
+used in binary classification.
+"""
 import numpy as np
 
 
 class NeuralNetwork:
     """
-    Defines a neural network with one hidden layer
-    performing binary classification
+    Class representing a neural network with one hidden layer
+    performing binary classification.
     """
 
     def __init__(self, nx, nodes):
         """
-        Class constructor
+        Initializes a NeuralNetwork instance.
 
         Args:
-            nx (int): number of input features
-            nodes (int): number of nodes in hidden layer
+            nx (int): Number of input features.
+            nodes (int): Number of nodes in the hidden layer.
+
+        Raises:
+            TypeError: If nx is not an integer.
+            ValueError: If nx is less than 1.
+            TypeError: If nodes is not an integer.
+            ValueError: If nodes is less than 1.
         """
-        if not isinstance(nx, int):
+        if type(nx) is not int:
             raise TypeError("nx must be an integer")
         if nx < 1:
             raise ValueError("nx must be a positive integer")
-        if not isinstance(nodes, int):
+        if type(nodes) is not int:
             raise TypeError("nodes must be an integer")
         if nodes < 1:
             raise ValueError("nodes must be a positive integer")
-
+        # Hidden layer parameters
         self.__W1 = np.random.randn(nodes, nx)
         self.__b1 = np.zeros((nodes, 1))
         self.__A1 = 0
+        # Output neuron parameters
         self.__W2 = np.random.randn(1, nodes)
         self.__b2 = 0
         self.__A2 = 0
 
     @property
     def W1(self):
-        """Getter for W1"""
+        """
+        Getter method retrieving the hidden layer weights.
+        """
         return self.__W1
 
     @property
     def b1(self):
-        """Getter for b1"""
+        """
+        Getter method retrieving the hidden layer biases.
+        """
         return self.__b1
 
     @property
     def A1(self):
-        """Getter for A1"""
+        """
+        Getter method retrieving the hidden layer activated output.
+        """
         return self.__A1
 
     @property
     def W2(self):
-        """Getter for W2"""
+        """
+        Getter method retrieving the output neuron weights.
+        """
         return self.__W2
 
     @property
     def b2(self):
-        """Getter for b2"""
+        """
+        Getter method retrieving the output neuron bias.
+        """
         return self.__b2
 
     @property
     def A2(self):
-        """Getter for A2"""
+        """
+        Getter method retrieving the output neuron activated output.
+        """
         return self.__A2
 
     def forward_prop(self, X):
         """
-        Calculates the forward propagation of the neural network
+        Calculates the forward propagation of the neural network.
 
         Args:
-            X (numpy.ndarray): input data of shape (nx, m)
+            X (numpy.ndarray): Input data with shape (nx, m).
 
         Returns:
-            tuple: (__A1, __A2)
+            tuple: The private attributes __A1 and __A2.
         """
-        # Hidden layer
         Z1 = np.matmul(self.__W1, X) + self.__b1
         self.__A1 = 1 / (1 + np.exp(-Z1))
-
-        # Output layer
         Z2 = np.matmul(self.__W2, self.__A1) + self.__b2
         self.__A2 = 1 / (1 + np.exp(-Z2))
-
         return self.__A1, self.__A2
 
     def cost(self, Y, A):
         """
-        Calculates the cost of the model using logistic regression
+        Calculates the cost of the model using logistic regression.
 
         Args:
-            Y (numpy.ndarray): correct labels, shape (1, m)
-            A (numpy.ndarray): activated output, shape (1, m)
+            Y (numpy.ndarray): Correct labels with shape (1, m).
+            A (numpy.ndarray): Activated output with shape (1, m).
 
         Returns:
-            float: cost
+            float: The cost.
         """
         m = Y.shape[1]
-        # Use 1.0000001 as per project to avoid division by zero / log(0)
-        cost = - (1/m) * np.sum(Y * np.log(A) + (1.0000001 - Y) * np.log(1.0000001 - A))
-        return cost
+        # Calculate the logistic regression cost function
+        term1 = Y * np.log(A)
+        term2 = (1 - Y) * np.log(1.0000001 - A)
+        cost = -(1 / m) * np.sum(term1 + term2)
+        return float(cost)
