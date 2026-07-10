@@ -22,7 +22,7 @@ class Neuron:
             TypeError: If nx is not an integer.
             ValueError: If nx is less than 1.
         """
-        if not isinstance(nx, int):
+        if type(nx) is not int:
             raise TypeError("nx must be an integer")
         if nx < 1:
             raise ValueError("nx must be a positive integer")
@@ -80,10 +80,10 @@ class Neuron:
         Returns:
             float: The cost.
         """
-        # m is the number of examples, derived from the shape of Y
         m = Y.shape[1]
 
         # Calculate the logistic regression cost function
+        # Using 1.0000001 - A to prevent division by zero errors as required
         cost = -(1 / m) * np.sum(Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A))
 
-        return cost
+        return float(cost)
