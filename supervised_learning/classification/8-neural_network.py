@@ -17,11 +17,11 @@ class DeepNeuralNetwork:
 
         Args:
             nx (int): Number of input features.
-            layers (list): List containing the number of nodes in each layer.
+            layers (list): List containing nodes in each layer.
 
         Raises:
             TypeError: If nx is not an integer or layers is not a list.
-            ValueError: If nx <= 0 or layers is empty or contains non-positives.
+            ValueError: If nx <= 0 or layers is empty/invalid.
         """
         if type(nx) is not int:
             raise TypeError("nx must be an integer")
@@ -36,25 +36,29 @@ class DeepNeuralNetwork:
         self.__cache = {}
         self.__weights = {}
 
-        # Initialization logic
-        prev = nx
-        idx = 0
-        # Iterate through layers to set weights and biases
-        while idx < self.__L:
-            layer_size = layers[idx]
-            if type(layer_size) is not int or layer_size < 1:
-                raise TypeError("layers must be a list of positive integers")
+        # Recursively initialize weights and biases
+        self.__recursive_init(nx, layers, 0, nx)
 
-            w_key = "W{}".format(idx + 1)
-            b_key = "b{}".format(idx + 1)
+    def __recursive_init(self, nx, layers, idx, prev_size):
+        """
+        Recursively setup weights and biases per layer.
+        """
+        if idx == self.__L:
+            return
 
-            # He initialization scaling
-            self.__weights[w_key] = np.random.randn(layer_size, prev) * \
-                np.sqrt(2 / prev)
-            self.__weights[b_key] = np.zeros((layer_size, 1))
+        layer_size = layers[idx]
+        if type(layer_size) is not int or layer_size < 1:
+            raise TypeError("layers must be a list of positive integers")
 
-            prev = layer_size
-            idx += 1
+        w_key = "W{}".format(idx + 1)
+        b_key = "b{}".format(idx + 1)
+
+        # He initialization scaled by the previous layer size
+        scale = np.sqrt(2 / prev_size)
+        self.__weights[w_key] = np.random.randn(layer_size, prev_size) * scale
+        self.__weights[b_key] = np.zeros((layer_size, 1))
+
+        self.__recursive_init(nx, layers, idx + 1, layer_size)
 
     @property
     def L(self):
@@ -79,28 +83,49 @@ class DeepNeuralNetwork:
 
     def forward_prop(self, X):
         """
-        Calculates the forward propagation of the neural network.
+        Calculates the activation of the network using recursion.
 
         Args:
             X (numpy.ndarray): Input data with shape (nx, m).
 
         Returns:
-            tuple: The activated output of the last layer and the cache.
+            tuple: Activation and cache.
         """
         self.__cache['A0'] = X
-        A = X
-        # Calculate output at each layer
-        for i in range(1, self.__L + 1):
-            W = self.__weights['W{}'.format(i)]
-            b = self.__weights['b{}'.format(i)]
+        return self.__recursive_prop(X, 1)
 
-            # Z = W * A + b
-            Z = np.matmul(W, A) + b
+    def __recursive_prop(self, A, idx):
+        """
+        Recursively apply activation across network layers.
+        """
+        if idx > self.__L:
+            return A, self.__cache
 
-            # Sigmoid activation: 1 / (1 + e^-Z)
-            A = 1 / (1 + np.exp(-Z))
+        w_key = "W{}".format(idx)
+        b_key = "b{}".format(idx)
+        a_key = "A{}".format(idx)
 
-            # Store activation result in cache
-            self.__cache['A{}'.format(i)] = A
+        z_val = np.matmul(self.__weights[w_key], A) + self.__weights[b_key]
+        activated = 1 / (1 + np.exp(-z_val))
+        self.__cache[a_key] = activated
 
-        return A, self.__cache
+        return self.__recursive_prop(activated, idx + 1)
+
+    def cost(self, Y, A):
+        """
+        Compute the logistic regression cost of the neural network.
+
+        Args:
+            Y (numpy.ndarray): Correct labels with shape (1, m).
+            A (numpy.ndarray): Activated output with shape (1, m).
+
+        Returns:
+            float: The cost.
+        """
+        m = Y.shape[1]
+
+        # Vectorized cost computation via matrix operations
+        loss = Y * np.log(A) + (1 - Y) * np.log(1.0000001 - A)
+        cost_val = -(1 / m) * np.sum(loss)
+
+        return float(cost_val)
