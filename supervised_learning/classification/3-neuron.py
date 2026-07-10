@@ -14,10 +14,10 @@ class Neuron:
     def __init__(self, nx):
         """
         Initializes a Neuron instance.
-        
+
         Args:
             nx (int): Number of input features.
-            
+
         Raises:
             TypeError: If nx is not an integer.
             ValueError: If nx is less than 1.
