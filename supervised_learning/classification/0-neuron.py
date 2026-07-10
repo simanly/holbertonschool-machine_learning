@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Module that defines a single neuron performing binary classification.
+Module defining a single neuron used in binary classification.
 """
 
 import numpy as np
@@ -8,15 +8,15 @@ import numpy as np
 
 class Neuron:
     """
-    Class that defines a single neuron performing binary classification.
+    Class representing a single neuron in a neural network.
     """
 
     def __init__(self, nx):
         """
-        Class constructor for the Neuron.
+        Initializes a Neuron instance.
 
         Args:
-            nx (int): The number of input features to the neuron.
+            nx (int): Number of input features.
 
         Raises:
             TypeError: If nx is not an integer.
@@ -27,9 +27,9 @@ class Neuron:
         if nx < 1:
             raise ValueError("nx must be a positive integer")
 
-        # The weights vector initialized using a random normal distribution
+        # Weights vector initialized with random normal distribution
         self.W = np.random.randn(1, nx)
-        # The bias for the neuron
+        # Bias of the neuron
         self.b = 0
-        # The activated output of the neuron (prediction)
+        # Activated output of the neuron
         self.A = 0
