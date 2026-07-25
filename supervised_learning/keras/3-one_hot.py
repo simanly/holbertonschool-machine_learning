@@ -16,4 +16,4 @@ def one_hot(labels, classes=None):
     Returns:
         The one-hot matrix with classes as the last dimension
     """
-    return K.utils.to_categorical(labels, num_classes=classes)o
+    return K.utils.to_categorical(labels, num_classes=classes)
