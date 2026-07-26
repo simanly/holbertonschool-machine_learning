@@ -16,7 +16,8 @@ def normalization_constants(X):
 
     Returns:
     tuple: (mean, std)
-           - mean: numpy.ndarray containing the mean of each feature
-           - std: numpy.ndarray containing the standard deviation of each feature
+    - mean: numpy.ndarray containing the mean of each feature
+    - std: numpy.ndarray containing the standard deviation of each 
+    feature
     """
     return np.mean(X, axis=0), np.std(X, axis=0)
