@@ -16,7 +16,8 @@ def learning_rate_decay(alpha, decay_rate, decay_step):
     - decay_step: number of passes before alpha is decayed further
 
     Returns:
-    - learning rate decay schedule (tf.keras.optimizers.schedules.InverseTimeDecay)
+    learning rate decay schedule
+    (tf.keras.optimizers.schedules.InverseTimeDecay)
     """
     return tf.keras.optimizers.schedules.InverseTimeDecay(
         initial_learning_rate=alpha,
