@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Module containing function to set up inverse time decay schedule in TensorFlow.
+Module containing function to set up
+inverse time decay schedule in TensorFlow.
 """
 import tensorflow as tf
 
