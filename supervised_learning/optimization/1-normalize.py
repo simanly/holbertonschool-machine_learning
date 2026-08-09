@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-
+'''
+Normalizes a matrix.
+'''
 import numpy as np
 
 
