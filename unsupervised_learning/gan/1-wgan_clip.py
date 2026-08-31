@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Module 1-wgan_clip
-Defines the WGAN_clip class for training a Wasserstein GAN with weight clipping.
+Defines the WGAN_clip class for training
+a Wasserstein GAN with weight clipping.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,7 +41,6 @@ class WGAN_clip(keras.Model):
         self.beta_1 = 0.5
         self.beta_2 = 0.9
 
-        # generator_loss(x) is the opposite of the mean value of discriminator on fake samples x
         self.generator.loss = lambda x: -tf.math.reduce_mean(x)
         self.generator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
@@ -89,7 +89,8 @@ class WGAN_clip(keras.Model):
     def train_step(self, useless_argument):
         """
         Executes one training step:
-        Applies gradient descent disc_iter times for the discriminator (with weight clipping),
+        Applies gradient descent disc_iter times for
+        the discriminator (with weight clipping),
         then once for the generator.
         """
         # Train Discriminator
