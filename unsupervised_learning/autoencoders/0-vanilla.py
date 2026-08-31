@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Creates a vanilla autoencoder model using keras."""
-import keras
+import tensorflow.keras as keras
 
 
 def autoencoder(input_dims, hidden_layers, latent_dims):
