@@ -23,7 +23,8 @@ class Simple_GAN(keras.Model):
         learning_rate=0.005,
     ):
         """
-        Initializes the Simple_GAN model, setting up loss functions and optimizers.
+        Initializes the Simple_GAN model,
+        setting up loss functions and optimizers.
         """
         super().__init__()
 
