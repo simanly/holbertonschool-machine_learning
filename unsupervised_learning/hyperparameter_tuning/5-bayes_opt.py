@@ -39,18 +39,11 @@ class BayesianOptimization:
         return X_next, EI
 
     def optimize(self, iterations=100):
-        """Optimizes the black-box function.
-
-        iterations: maximum number of iterations to perform
-
-        Returns: x_opt, Y_opt
-            x_opt: numpy.ndarray (1,) representing the optimal point
-            Y_opt: numpy.ndarray (1,) representing optimal function value
-        """
+        """Optimizes the black-box function."""
         for _ in range(iterations):
             x_next, _ = self.acquisition()
 
-            if np.any(np.isclose(x_next, self.gp.X)):
+            if x_next in self.gp.X:
                 break
 
             y_next = self.f(x_next)
