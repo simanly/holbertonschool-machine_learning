@@ -1,59 +1,84 @@
 #!/usr/bin/env python3
-"""Creates a variational autoencoder model using keras."""
-import tensorflow.keras as keras
+"""
+Module 3-variational
+Contains the autoencoder function to create a Variational Autoencoder (VAE).
+"""
+import tensorflow as tf
 
 
 def autoencoder(input_dims, hidden_layers, latent_dims):
-    """Creates a variational autoencoder.
-
-    input_dims: integer containing dimensions of model input
-    hidden_layers: list with number of nodes for hidden layers in encoder
-    latent_dims: integer containing dimensions of latent space
-    Returns: encoder, decoder, auto
     """
-    inputs = keras.Input(shape=(input_dims,))
+    Creates a Variational Autoencoder (VAE) using Keras.
+
+    Args:
+        input_dims (int): Dimension of the model input.
+        hidden_layers (list): Number of nodes for each hidden layer
+                              in the encoder.
+        latent_dims (int): Dimension of the latent space representation.
+
+    Returns:
+        encoder (tf.keras.Model): The encoder model, outputting (z, mean, log_var).
+        decoder (tf.keras.Model): The decoder model.
+        auto (tf.keras.Model): The full variational autoencoder model.
+    """
+    # ------------------- ENCODER -------------------
+    inputs = tf.keras.Input(shape=(input_dims,))
     x = inputs
 
     for nodes in hidden_layers:
-        x = keras.layers.Dense(nodes, activation='relu')(x)
+        x = tf.keras.layers.Dense(nodes, activation='relu')(x)
 
-    mean = keras.layers.Dense(latent_dims, activation=None)(x)
-    log_sig = keras.layers.Dense(latent_dims, activation=None)(x)
+    z_mean = tf.keras.layers.Dense(latent_dims, activation=None)(x)
+    z_log_var = tf.keras.layers.Dense(latent_dims, activation=None)(x)
 
+    # Reparameterization trick via Lambda layer
     def sampling(args):
-        """Sampling trick for VAE latent space."""
-        z_mean, z_log_sig = args
-        epsilon = keras.backend.random_normal(
-            shape=(keras.backend.shape(z_mean)[0], latent_dims)
+        mean, log_var = args
+        epsilon = tf.keras.backend.random_normal(
+            shape=tf.shape(mean), mean=0.0, stddev=1.0
         )
-        return z_mean + keras.backend.exp(z_log_sig / 2) * epsilon
+        return mean + tf.exp(log_var / 2) * epsilon
 
-    z = keras.layers.Lambda(sampling)([mean, log_sig])
+    z = tf.keras.layers.Lambda(sampling, output_shape=(latent_dims,))(
+        [z_mean, z_log_var]
+    )
 
-    encoder = keras.Model(inputs=inputs, outputs=[z, mean, log_sig])
+    # Encoder outputs z (latent representation), mean, and log_variance
+    encoder = tf.keras.Model(
+        inputs, [z, z_mean, z_log_var], name="encoder"
+    )
 
-    latent_inputs = keras.Input(shape=(latent_dims,))
-    x = latent_inputs
+    # ------------------- DECODER -------------------
+    latent_inputs = tf.keras.Input(shape=(latent_dims,))
+    x_dec = latent_inputs
 
     for nodes in reversed(hidden_layers):
-        x = keras.layers.Dense(nodes, activation='relu')(x)
+        x_dec = tf.keras.layers.Dense(nodes, activation='relu')(x_dec)
 
-    outputs = keras.layers.Dense(input_dims, activation='sigmoid')(x)
-    decoder = keras.Model(inputs=latent_inputs, outputs=outputs)
+    outputs = tf.keras.layers.Dense(input_dims, activation='sigmoid')(x_dec)
 
-    auto_outputs = decoder(encoder(inputs)[0])
-    auto = keras.Model(inputs=inputs, outputs=auto_outputs)
+    decoder = tf.keras.Model(latent_inputs, outputs, name="decoder")
 
-    def vae_loss(y_true, y_pred):
-        """Calculates total loss for VAE."""
-        recon_loss = keras.losses.binary_crossentropy(y_true, y_pred)
-        recon_loss *= input_dims
-        kl_loss = 1 + log_sig - keras.backend.square(mean) - \
-            keras.backend.exp(log_sig)
-        kl_loss = keras.backend.sum(kl_loss, axis=-1)
-        kl_loss *= -0.5
-        return keras.backend.mean(recon_loss + kl_loss)
+    # ------------------- AUTOENCODER -------------------
+    # Connect encoder sampling output directly to decoder
+    encoder_output = encoder(inputs)[0]
+    auto_outputs = decoder(encoder_output)
 
-    auto.compile(optimizer='adam', loss=vae_loss)
+    auto = tf.keras.Model(inputs, auto_outputs, name="autoencoder")
+
+    # Calculation of reconstruction and KL divergence loss
+    reconstruction_loss = tf.keras.losses.binary_crossentropy(
+        inputs, auto_outputs
+    )
+    reconstruction_loss *= input_dims
+
+    kl_loss = 1 + z_log_var - tf.square(z_mean) - tf.exp(z_log_var)
+    kl_loss = tf.reduce_sum(kl_loss, axis=-1)
+    kl_loss *= -0.5
+
+    vae_loss = tf.reduce_mean(reconstruction_loss + kl_loss)
+
+    auto.add_loss(vae_loss)
+    auto.compile(optimizer='adam')
 
     return encoder, decoder, auto
