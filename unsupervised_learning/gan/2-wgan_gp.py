@@ -51,7 +51,6 @@ class WGAN_GP(keras.Model):
             self.scal_shape[i] = 1
         self.scal_shape = tf.convert_to_tensor(self.scal_shape)
 
-        # generator_loss(x) is the opposite of the mean value of discriminator on fake samples x
         self.generator.loss = lambda x: -tf.math.reduce_mean(x)
         self.generator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
