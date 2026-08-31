@@ -40,8 +40,7 @@ class WGAN_clip(keras.Model):
         self.beta_1 = 0.5
         self.beta_2 = 0.9
 
-        # Define the generator Loss and optimizer:
-        # generator_loss(x) is the opposite of the mean value of the discriminator on fake images (x)
+        # generator_loss(x) is the opposite of the mean value of discriminator on fake samples x
         self.generator.loss = lambda x: -tf.math.reduce_mean(x)
         self.generator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
@@ -52,11 +51,11 @@ class WGAN_clip(keras.Model):
             optimizer=self.generator.optimizer, loss=self.generator.loss
         )
 
-        # Define the discriminator Loss and optimizer:
-        # discriminator_loss(x, y) = mean(y) - mean(x) where y is real sample output, x is fake sample output
+        # discriminator_loss(x, y) = mean(x) - mean(y)
+        # where x is fake samples output and y is real samples output
         self.discriminator.loss = lambda x, y: tf.math.reduce_mean(
-            y
-        ) - tf.math.reduce_mean(x)
+            x
+        ) - tf.math.reduce_mean(y)
         self.discriminator.optimizer = keras.optimizers.Adam(
             learning_rate=self.learning_rate,
             beta_1=self.beta_1,
@@ -93,7 +92,7 @@ class WGAN_clip(keras.Model):
         Applies gradient descent disc_iter times for the discriminator (with weight clipping),
         then once for the generator.
         """
-        # 1. Train Discriminator disc_iter times
+        # Train Discriminator
         for _ in range(self.disc_iter):
             with tf.GradientTape() as tape:
                 real_sample = self.get_real_sample()
@@ -111,11 +110,11 @@ class WGAN_clip(keras.Model):
                 zip(grads, self.discriminator.trainable_variables)
             )
 
-            # Clip discriminator weights between -1 and 1
+            # Clip weights between -1 and 1
             for var in self.discriminator.trainable_variables:
                 var.assign(tf.clip_by_value(var, -1.0, 1.0))
 
-        # 2. Train Generator once
+        # Train Generator
         with tf.GradientTape() as tape:
             fake_sample = self.get_fake_sample(training=True)
             fake_output = self.discriminator(fake_sample, training=True)
