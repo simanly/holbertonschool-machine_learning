@@ -20,7 +20,8 @@ class RNNCell:
         - h: dimensionality of the hidden state
         - o: dimensionality of the outputs
         """
-        # Concatenated weights for hidden state and input data: shape (h + i, h)
+        # Concatenated weights for hidden state
+        # and input data: shape (h + i, h)
         self.Wh = np.random.randn(h + i, h)
         # Weights for output: shape (h, o)
         self.Wy = np.random.randn(h, o)
