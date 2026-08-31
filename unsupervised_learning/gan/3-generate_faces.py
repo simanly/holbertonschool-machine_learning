@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Module 3-generate_faces
-Defines the convolutional_GenDiscr function to build generator and discriminator
-models using Keras.
+Defines the convolutional_GenDiscr function to build
+generator and discriminator models using Keras.
 """
 import tensorflow as tf
 from tensorflow import keras
