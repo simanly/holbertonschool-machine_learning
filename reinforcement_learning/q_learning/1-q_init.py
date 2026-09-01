@@ -14,7 +14,8 @@ def q_init(env):
     - env: FrozenLakeEnv instance
 
     Returns:
-    - Q: numpy.ndarray of zeros with shape (action_space.n, observation_space.n)
+    - Q: numpy.ndarray of zeros with shape
+    (action_space.n, observation_space.n)
          or (observation_space.n, action_space.n)
     """
     action_space_size = env.action_space.n
