@@ -14,4 +14,4 @@ def crop_image(image, size):
     Returns:
     - cropped image
     """
-    return tf.image.random_crop(image, size=size)
+    return tf.image.random_crop(image, size=size, seed=None)
