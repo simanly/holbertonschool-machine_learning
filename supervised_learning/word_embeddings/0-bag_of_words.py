@@ -2,7 +2,7 @@
 """
 Module to calculate bag of words embedding matrix.
 """
-import re
+import string
 import numpy as np
 
 
@@ -21,17 +21,21 @@ def bag_of_words(sentences, vocab=None):
     Returns:
     --------
     embeddings : numpy.ndarray
-        Array of shape (s, f) containing word frequencies per sentence,
-        where s is len(sentences) and f is len(features).
+        Array of shape (s, f) containing word frequencies per sentence.
     features : list of str
         List of the feature words corresponding to the matrix columns.
     """
-    # Tokenize and lowercase sentences, keeping only word characters
-    tokenized = [
-        re.findall(r"\b\w+\b", sentence.lower()) for sentence in sentences
-    ]
+    tokenized = []
+    for sentence in sentences:
+        # Приводим к нижнему регистру
+        sentence = sentence.lower()
+        # Удаляем всю пунктуацию (!, ?, ., ' и т.д.)
+        for char in string.punctuation:
+            sentence = sentence.replace(char, '')
+        # Разбиваем по пробелам
+        words = sentence.split()
+        tokenized.append(words)
 
-    # Determine features list
     if vocab is None:
         unique_words = set()
         for words in tokenized:
@@ -44,10 +48,8 @@ def bag_of_words(sentences, vocab=None):
     f = len(features)
     embeddings = np.zeros((s, f), dtype=int)
 
-    # Create map for fast lookup of feature index
     feature_map = {word: idx for idx, word in enumerate(features)}
 
-    # Fill embedding matrix with word counts
     for i, words in enumerate(tokenized):
         for word in words:
             if word in feature_map:
