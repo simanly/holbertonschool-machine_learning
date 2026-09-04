@@ -2,7 +2,7 @@
 """
 Module to calculate TF-IDF embedding matrix.
 """
-import re
+import string
 import numpy as np
 
 
@@ -27,7 +27,11 @@ def tf_idf(sentences, vocab=None):
     """
     tokenized = []
     for sentence in sentences:
-        words = re.findall(r"\b[a-zA-Z]+\b", sentence.lower())
+        sentence = sentence.lower()
+        # Удаляем всю пунктуацию, включая апострофы ('s -> s)
+        for char in string.punctuation:
+            sentence = sentence.replace(char, '')
+        words = sentence.split()
         tokenized.append(words)
 
     if vocab is None:
@@ -41,36 +45,30 @@ def tf_idf(sentences, vocab=None):
     s = len(sentences)
     f = len(features)
 
-    # 1. Рассчитываем Term Frequency (TF)
+    # 1. Считаем частоту слов (TF) как количество вхождений в предложение
     tf = np.zeros((s, f), dtype=float)
     feature_map = {word: idx for idx, word in enumerate(features)}
 
     for i, words in enumerate(tokenized):
-        total_words = len(words)
-        if total_words == 0:
-            continue
         for word in words:
             if word in feature_map:
                 tf[i, feature_map[word]] += 1
-        # Нормализация TF по общей длине предложения
-        tf[i] = tf[i] / total_words
 
-    # 2. Рассчитываем Inverse Document Frequency (IDF)
-    # Считаем, в скольких документах/предложениях встречается каждое слово
-    doc_count = np.zeros(f, dtype=float)
+    # 2. Считаем Inverse Document Frequency (IDF)
+    # df — количество документов/предложений, содержащих слово
+    df = np.zeros(f, dtype=float)
     for words in tokenized:
         unique_in_doc = set(words)
         for word in unique_in_doc:
             if word in feature_map:
-                doc_count[feature_map[word]] += 1
+                df[feature_map[word]] += 1
 
-    # Формула IDF с логарифмированием (natural log)
-    # Используем log(s / doc_count) с обработкой деления на 0
+    # Вычисляем IDF = log(s / df). Если df == 0, IDF = 0
     idf = np.zeros(f, dtype=float)
-    nonzero_mask = doc_count > 0
-    idf[nonzero_mask] = np.log(s / doc_count[nonzero_mask])
+    nonzero_mask = df > 0
+    idf[nonzero_mask] = np.log(s / df[nonzero_mask])
 
-    # 3. Произведение TF * IDF
+    # 3. TF-IDF = TF * IDF
     embeddings = tf * idf
 
     return embeddings, features
