@@ -2,7 +2,7 @@
 """
 Module to calculate bag of words embedding matrix.
 """
-import string
+import re
 import numpy as np
 
 
@@ -27,13 +27,7 @@ def bag_of_words(sentences, vocab=None):
     """
     tokenized = []
     for sentence in sentences:
-        # Приводим к нижнему регистру
-        sentence = sentence.lower()
-        # Удаляем всю пунктуацию (!, ?, ., ' и т.д.)
-        for char in string.punctuation:
-            sentence = sentence.replace(char, '')
-        # Разбиваем по пробелам
-        words = sentence.split()
+        words = re.findall(r"\b[a-zA-Z]+\b", sentence.lower())
         tokenized.append(words)
 
     if vocab is None:
