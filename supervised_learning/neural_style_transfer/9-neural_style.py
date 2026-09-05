@@ -237,64 +237,32 @@ class NST:
 
         return gradients, J_total, J_content, J_style
 
-    def generate_image(self, iterations=1000, step=None, lr=0.01,
-                       beta1=0.9, beta2=0.99):
-        """Generates the neural style transferred image"""
-        if type(iterations) is not int:
-            raise TypeError("iterations must be an integer")
-        if iterations <= 0:
-            raise ValueError("iterations must be positive")
-
-        if step is not None:
-            if type(step) is not int:
-                raise TypeError("step must be an integer")
-            if step <= 0 or step > iterations:
-                raise ValueError(
-                    "step must be positive and less than iterations"
-                )
-
-        if not isinstance(lr, (int, float)) or isinstance(lr, bool):
-            raise TypeError("lr must be a number")
-        if lr <= 0:
-            raise ValueError("lr must be positive")
-
-        if type(beta1) is not float:
-            raise TypeError("beta1 must be a float")
-        if not (0.0 <= beta1 <= 1.0):
-            raise ValueError("beta1 must be in the range [0, 1]")
-
-        if type(beta2) is not float:
-            raise TypeError("beta2 must be a float")
-        if not (0.0 <= beta2 <= 1.0):
-            raise ValueError("beta2 must be in the range [0, 1]")
-
-        generated_image = tf.Variable(self.content_image)
-        optimizer = tf.optimizers.Adam(
-            learning_rate=lr, beta_1=beta1, beta_2=beta2
-        )
-
-        best_cost = float('inf')
-        best_image = None
-
-        for i in range(iterations + 1):
-            grads, J_total, J_content, J_style = self.compute_grads(
-                generated_image
+    @staticmethod
+    def scale_image(image, max_dim=512):
+        """Rescales an image so that its maximum dimension is max_dim"""
+        if (not isinstance(image, np.ndarray)
+                or image.ndim != 3 or image.shape[2] != 3):
+            raise TypeError(
+                "image must be a numpy.ndarray with shape (h, w, 3)"
             )
 
-            if J_total < best_cost:
-                best_cost = J_total
-                best_image = generated_image.value()
+        if type(max_dim) is not int or max_dim <= 0:
+            raise TypeError("max_dim must be a positive integer")
 
-            if step is not None and (i % step == 0 or i == iterations):
-                print(
-                    f"Cost at iteration {i}: {J_total}, "
-                    f"content {J_content}, style {J_style}"
-                )
+        h, w, _ = image.shape
+        if h > w:
+            h_new = max_dim
+            w_new = int((w * max_dim) / h)
+        else:
+            w_new = max_dim
+            h_new = int((h * max_dim) / w)
 
-            if i < iterations:
-                optimizer.apply_gradients([(grads, generated_image)])
-                generated_image.assign(
-                    tf.clip_by_value(generated_image, 0.0, 1.0)
-                )
+        image_scaled = image / 255.0
+        image_resized = tf.image.resize(
+            image_scaled,
+            size=[h_new, w_new],
+            method='bicubic'
+        )
+        image_resized = tf.clip_by_value(image_resized, 0.0, 1.0)
 
-        return best_image, best_cost
+        return tf.expand_dims(image_resized, axis=0)
