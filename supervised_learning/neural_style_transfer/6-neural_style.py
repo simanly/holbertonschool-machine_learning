@@ -191,17 +191,12 @@ class NST:
         return style_cost
     def content_cost(self, content_output):
         """
-        Calculates the content cost for the generated image.
-        Args:
-            content_output: tf.Tensor or tf.Variable containing the content
-                            output for the generated image.
-
-        Returns:
-            The content cost as a tf.Tensor.
+        Calculates the content cost for the generated image
         """
         if (not isinstance(content_output, (tf.Tensor, tf.Variable))
                 or content_output.shape != self.content_feature.shape):
-            raise TypeError(f"content_output must be a tensor of shape {self.content_feature.shape}")
+            s = self.content_feature.shape
+            raise TypeError(f"content_output must be a tensor of shape {s}")
 
-        return tf.reduce_sum(tf.square(content_output - self.content_feature)) / 2
-    
+        diff = content_output - self.content_feature
+        return 0.5 * tf.reduce_sum(tf.square(diff))
