@@ -130,7 +130,7 @@ class NST:
         gram = tf.linalg.einsum('bijc,bijd->bcd', input_layer, input_layer)
 
         # Normalize by feature map area (h * w)
-        num = tf.cast(tf.shape(input_layer)[1] * tf.shape(input_layer)[2], tf.float32)
-        num_locations = num
+        shape = tf.shape(input_layer)
+        num_locations = tf.cast(shape[1] * shape[2], tf.float32)
 
         return gram / num_locations
