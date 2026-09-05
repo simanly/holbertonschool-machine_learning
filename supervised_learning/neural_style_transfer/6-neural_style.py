@@ -189,7 +189,7 @@ class NST:
             style_cost += weight * layer_cost
 
         return style_cost
-    
+
     def content_cost(self, content_output):
         """Calculates the content cost for the generated image"""
         if (not isinstance(content_output, (tf.Tensor, tf.Variable))
