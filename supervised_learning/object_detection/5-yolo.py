@@ -178,16 +178,17 @@ class Yolo:
 
     def preprocess_images(self, images):
         """Resizes and rescales images for input into the YOLO model."""
-        input_h = self.model.input_shape[1]
-        input_w = self.model.input_shape[2]
+        input_h = self.model.input.shape[1]
+        input_w = self.model.input.shape[2]
 
         pimages = []
         image_shapes = []
 
         for img in images:
             image_shapes.append(img.shape[:2])
+            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             resized_img = cv2.resize(
-                img,
+                img_rgb,
                 (input_w, input_h),
                 interpolation=cv2.INTER_CUBIC
             )
