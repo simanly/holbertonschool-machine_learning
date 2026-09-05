@@ -166,4 +166,4 @@ class NST:
         gram_style = self.gram_matrix(style_output)
         cost = tf.reduce_sum(tf.square(gram_style - gram_target))
 
-        return cost / (4 * (c ** 2))
+        return cost / (c ** 2)
