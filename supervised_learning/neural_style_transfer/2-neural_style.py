@@ -122,13 +122,15 @@ class NST:
         Returns:
             tf.Tensor of shape (1, c, c) containing the Gram matrix
         """
-        if not isinstance(input_layer, (tf.Tensor, tf.Variable)) or len(input_layer.shape) != 4:
+        if (not isinstance(input_layer, (tf.Tensor, tf.Variable))
+                or len(input_layer.shape) != 4):
             raise TypeError("input_layer must be a tensor of rank 4")
 
         # Compute inner product over height and width dimensions
         gram = tf.linalg.einsum('bijc,bijd->bcd', input_layer, input_layer)
 
         # Normalize by feature map area (h * w)
-        num_locations = tf.cast(tf.shape(input_layer)[1] * tf.shape(input_layer)[2], tf.float32)
+        num = tf.cast(tf.shape(input_layer)[1] * tf.shape(input_layer)[2], tf.float32)
+        num_locations = num
 
         return gram / num_locations
