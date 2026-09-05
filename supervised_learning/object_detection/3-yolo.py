@@ -81,33 +81,86 @@ class Yolo:
 
     def filter_boxes(self, boxes, box_confidences, box_class_probs):
         """
-        Filters boundary boxes based on
-        objectness score and class threshold
+        Filters boundary boxes based on objectness score and class threshold
         """
         filtered_boxes = []
         box_classes = []
         box_scores = []
 
         for i in range(len(boxes)):
-            # Вычисление итоговых вероятностей классов (confidence * prob)
             scores = box_confidences[i] * box_class_probs[i]
-
-            # Определение предсказанного класса и соответствующего скора
             classes = np.argmax(scores, axis=-1)
             class_scores = np.max(scores, axis=-1)
 
-            # Маска для отбора рамок со скором >= порога (class_t)
             mask = class_scores >= self.class_t
 
-            # Применение маски к данным
             filtered_boxes.append(boxes[i][mask])
             box_classes.append(classes[mask])
             box_scores.append(class_scores[mask])
 
-        # Объединение всех отфильтрованных результатов
-        # в одномерные/двумерные массивы
         filtered_boxes = np.concatenate(filtered_boxes, axis=0)
         box_classes = np.concatenate(box_classes, axis=0)
         box_scores = np.concatenate(box_scores, axis=0)
 
         return filtered_boxes, box_classes, box_scores
+
+    def non_max_suppression(self, filtered_boxes, box_classes, box_scores):
+        """
+        Applies non-max suppression to filtered bounding boxes
+        """
+        box_predictions = []
+        predicted_box_classes = []
+        predicted_box_scores = []
+
+        unique_classes = np.unique(box_classes)
+
+        for c in unique_classes:
+            idxs = np.where(box_classes == c)[0]
+
+            cls_boxes = filtered_boxes[idxs]
+            cls_scores = box_scores[idxs]
+
+            x1 = cls_boxes[:, 0]
+            y1 = cls_boxes[:, 1]
+            x2 = cls_boxes[:, 2]
+            y2 = cls_boxes[:, 3]
+
+            areas = (x2 - x1) * (y2 - y1)
+            order = cls_scores.argsort()[::-1]
+
+            keep = []
+            while order.size > 0:
+                i = order[0]
+                keep.append(i)
+
+                xx1 = np.maximum(x1[i], x1[order[1:]])
+                yy1 = np.maximum(y1[i], y1[order[1:]])
+                xx2 = np.minimum(x2[i], x2[order[1:]])
+                yy2 = np.minimum(y2[i], y2[order[1:]])
+
+                w = np.maximum(0.0, xx2 - xx1)
+                h = np.maximum(0.0, yy2 - yy1)
+                inter = w * h
+
+                iou = inter / (areas[i] + areas[order[1:]] - inter)
+
+                inds = np.where(iou <= self.nms_t)[0]
+                order = order[inds + 1]
+
+            keep = np.array(keep)
+            box_predictions.append(cls_boxes[keep])
+            predicted_box_classes.append(np.full(len(keep), c))
+            predicted_box_scores.append(cls_scores[keep])
+
+        if len(box_predictions) > 0:
+            box_predictions = np.concatenate(box_predictions, axis=0)
+            predicted_box_classes = np.concatenate(
+                predicted_box_classes, axis=0)
+            predicted_box_scores = np.concatenate(
+                predicted_box_scores, axis=0)
+        else:
+            box_predictions = np.array([])
+            predicted_box_classes = np.array([])
+            predicted_box_scores = np.array([])
+
+        return box_predictions, predicted_box_classes, predicted_box_scores
