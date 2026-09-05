@@ -25,14 +25,14 @@ class NST:
         Class constructor for Neural Style Transfer
         """
         if (not isinstance(style_image, np.ndarray)
-            or style_image.ndim != 3
-            or style_image.shape[2] != 3):
+                or style_image.ndim != 3
+                or style_image.shape[2] != 3):
             msg = 'style_image must be a numpy.ndarray with shape (h, w, 3)'
             raise TypeError(msg)
 
         if (not isinstance(content_image, np.ndarray)
-            or content_image.ndim != 3
-            or content_image.shape[2] != 3):
+                or content_image.ndim != 3
+                or content_image.shape[2] != 3):
             msg = 'content_image must be a numpy.ndarray with shape (h, w, 3)'
             raise TypeError(msg)
 
@@ -55,7 +55,7 @@ class NST:
         """
         if (not isinstance(image, np.ndarray)
             or image.ndim != 3
-            or image.shape[2] != 3):
+                or image.shape[2] != 3):
             msg = 'image must be a numpy.ndarray with shape (h, w, 3)'
             raise TypeError(msg)
 
