@@ -197,6 +197,7 @@ class NST:
             s = self.content_feature.shape
             raise TypeError(f"content_output must be a tensor of shape {s}")
 
+        _, h, w, c = self.content_feature.shape
         diff = self.content_feature - content_output
-
-        return 0.5 * tf.reduce_mean(tf.square(diff))
+        cost = tf.reduce_sum(tf.square(diff))
+        return cost / (2.0 * h * w * c)
