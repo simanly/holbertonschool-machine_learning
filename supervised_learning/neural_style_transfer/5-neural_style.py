@@ -175,8 +175,7 @@ class NST:
         l_layers = len(self.style_layers)
         if (not isinstance(style_outputs, list)
                 or len(style_outputs) != l_layers):
-            msg = (f"style_outputs must be a list with a length of {l_layers} "
-                   f"where {l_layers} is the length of self.style_layers")
+            msg = f"style_outputs must be a list with a length of {l_layers}"
             raise TypeError(msg)
 
         weight = 1.0 / l_layers
