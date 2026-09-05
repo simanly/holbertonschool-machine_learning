@@ -24,11 +24,17 @@ class NST:
         """
         Class constructor for Neural Style Transfer
         """
-        if not isinstance(style_image, np.ndarray) or style_image.ndim != 3 or style_image.shape[2] != 3:
-            raise TypeError("style_image must be a numpy.ndarray with shape (h, w, 3)")
+        if (not isinstance(style_image, np.ndarray)
+            or style_image.ndim != 3
+            or style_image.shape[2] != 3):
+            msg = 'style_image must be a numpy.ndarray with shape (h, w, 3)'
+            raise TypeError(msg)
 
-        if not isinstance(content_image, np.ndarray) or content_image.ndim != 3 or content_image.shape[2] != 3:
-            raise TypeError("content_image must be a numpy.ndarray with shape (h, w, 3)")
+        if (not isinstance(content_image, np.ndarray)
+            or content_image.ndim != 3
+            or content_image.shape[2] != 3):
+            msg = 'content_image must be a numpy.ndarray with shape (h, w, 3)'
+            raise TypeError(msg)
 
         if not isinstance(alpha, (int, float)) or alpha < 0:
             raise TypeError("alpha must be a non-negative number")
@@ -47,8 +53,11 @@ class NST:
         Rescales an image such that its pixels values are between 0 and 1
         and its largest side is 512 pixels
         """
-        if not isinstance(image, np.ndarray) or image.ndim != 3 or image.shape[2] != 3:
-            raise TypeError("image must be a numpy.ndarray with shape (h, w, 3)")
+        if (not isinstance(image, np.ndarray)
+            or image.ndim != 3
+            or image.shape[2] != 3):
+            msg = 'image must be a numpy.ndarray with shape (h, w, 3)'
+            raise TypeError(msg)
 
         h, w, _ = image.shape
         max_dim = max(h, w)
