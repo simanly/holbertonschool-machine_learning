@@ -78,4 +78,3 @@ class Yolo:
             box_class_probs.append(box_prob)
 
         return boxes, box_confidences, box_class_probs
-    
