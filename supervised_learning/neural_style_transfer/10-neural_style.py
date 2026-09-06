@@ -303,9 +303,8 @@ class NST:
         grads = tape.gradient(J_total, generated_image)
         return grads, J_total, J_content, J_style, J_var
 
-    def generate_image(self, iterations=2000, step=None, lr=0.01,
-                       beta1=0.9, beta2=0.99):
-        """Generates the neural style transfer image"""
+    def generate_image(self, iterations=2000, step=None, lr=0.01, beta1=0.9, beta2=0.999):
+        # Валидация аргументов
         if type(iterations) is not int:
             raise TypeError("iterations must be an integer")
         if iterations <= 0:
@@ -315,51 +314,50 @@ class NST:
             if type(step) is not int:
                 raise TypeError("step must be an integer")
             if step <= 0 or step >= iterations:
-                raise ValueError(
-                    "step must be positive and less than iterations"
-                )
+                raise ValueError("step must be positive and less than iterations")
 
-        if type(lr) not in (int, float):
+        if type(lr) not in [int, float]:
             raise TypeError("lr must be a number")
         if lr <= 0:
             raise ValueError("lr must be positive")
 
         if type(beta1) is not float:
             raise TypeError("beta1 must be a float")
-        if not (0.0 <= beta1 <= 1.0):
+        if not (0 <= beta1 <= 1):
             raise ValueError("beta1 must be in the range [0, 1]")
 
         if type(beta2) is not float:
             raise TypeError("beta2 must be a float")
-        if not (0.0 <= beta2 <= 1.0):
+        if not (0 <= beta2 <= 1):
             raise ValueError("beta2 must be in the range [0, 1]")
 
+        # Инициализация сгенерированного изображения
         generated_image = tf.Variable(self.content_image)
-        optimizer = tf.keras.optimizers.Adam(
-            learning_rate=lr, beta_1=beta1, beta_2=beta2
-        )
+
+        # Инициализация оптимизатора (обратите внимание на beta_1 и beta_2)
+        optimizer = tf.keras.optimizers.Adam(learning_rate=lr, beta_1=beta1, beta_2=beta2)
 
         best_cost = float('inf')
         best_image = None
 
-        for i in range(iterations + 1):
-            grads, J_total, J_content, J_style, J_var = (
-                self.compute_grads(generated_image)
-            )
+        for i in range(iterations):
+            with tf.GradientTape() as tape:
+                J_total, J_content, J_style, J_var = self.compute_cost(generated_image)
 
-            if J_total < best_cost:
-                best_cost = J_total
-                best_image = generated_image[0]
+            grads = tape.gradient(J_total, generated_image)
+            optimizer.apply_gradients([(grads, generated_image)])
 
-            if step is not None and (i % step == 0 or i == iterations):
-                print(
-                    "Cost at iteration {}: {}, content {}, style {}, var {}"
-                    .format(i, J_total, J_content, J_style, J_var)
-                )
+            # Ограничение значений пикселей диапазоном [0, 1]
+            clipped = tf.clip_by_value(generated_image, 0.0, 1.0)
+            generated_image.assign(clipped)
 
-            if i < iterations:
-                optimizer.apply_gradients([(grads, generated_image)])
-                clipped = tf.clip_by_value(generated_image, 0.0, 1.0)
-                generated_image.assign(clipped)
+            cost_val = J_total.numpy()
+
+            if cost_val < best_cost:
+                best_cost = cost_val
+                best_image = generated_image.numpy()[0]
+
+            if step is not None and (i == 0 or (i + 1) % step == 0 or i == iterations - 1):
+                print("Cost at iteration {}: {}".format(i, J_total))
 
         return best_image, best_cost
