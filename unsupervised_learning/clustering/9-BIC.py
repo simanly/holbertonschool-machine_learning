@@ -35,26 +35,26 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
         return None, None, None, None
 
     num_k = kmax - kmin + 1
-    log_likes = np.zeros(num_k)
+    likes = np.zeros(num_k)
     bics = np.zeros(num_k)
     results = []
 
     for k in range(kmin, kmax + 1):
-        pi, m, S, g, log_like = expectation_maximization(
+        pi, m, S, g, like = expectation_maximization(
             X, k, iterations, tol, verbose
         )
-        if pi is None or m is None or S is None or log_like is None:
+        if pi is None or m is None or S is None or like is None:
             return None, None, None, None
 
         results.append((pi, m, S))
         idx = k - kmin
-        log_likes[idx] = log_like
+        likes[idx] = like
 
         p = (k - 1) + (k * d) + (k * d * (d + 1) // 2)
-        bics[idx] = p * np.log(n) - (2 * log_like)
+        bics[idx] = p * np.log(n) - (2 * like)
 
     best_idx = np.argmin(bics)
     best_k = kmin + best_idx
-    best_result = results[best_idx]
+    best_res = results[best_idx]
 
-    return best_k, best_result, log_likes, bics
+    return best_k, best_res, likes, bics
