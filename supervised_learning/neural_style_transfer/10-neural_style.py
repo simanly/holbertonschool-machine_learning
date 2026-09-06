@@ -303,9 +303,9 @@ class NST:
         grads = tape.gradient(J_total, generated_image)
         return grads, J_total, J_content, J_style, J_var
 
-    def generate_image(self, iterations=1000, step=None, lr=0.01,
+    def generate_image(self, iterations=2000, step=None, lr=0.01,
                        beta1=0.9, beta2=0.99):
-        """Generates the neural style transferred image"""
+        """Generates the neural style transfer image"""
         if type(iterations) is not int:
             raise TypeError("iterations must be an integer")
         if iterations <= 0:
@@ -319,7 +319,7 @@ class NST:
                     "step must be positive and less than iterations"
                 )
 
-        if not isinstance(lr, (int, float)) or isinstance(lr, bool):
+        if type(lr) not in (int, float):
             raise TypeError("lr must be a number")
         if lr <= 0:
             raise ValueError("lr must be positive")
@@ -335,7 +335,7 @@ class NST:
             raise ValueError("beta2 must be in the range [0, 1]")
 
         generated_image = tf.Variable(self.content_image)
-        optimizer = tf.optimizers.Adam(
+        optimizer = tf.keras.optimizers.Adam(
             learning_rate=lr, beta_1=beta1, beta_2=beta2
         )
 
@@ -343,8 +343,8 @@ class NST:
         best_image = None
 
         for i in range(iterations + 1):
-            grads, J_total, J_content, J_style, J_var = self.compute_grads(
-                generated_image
+            grads, J_total, J_content, J_style, J_var = (
+                self.compute_grads(generated_image)
             )
 
             if J_total < best_cost:
@@ -353,14 +353,13 @@ class NST:
 
             if step is not None and (i % step == 0 or i == iterations):
                 print(
-                    f"Cost at iteration {i}: {J_total}, "
-                    f"content {J_content}, style {J_style}, var {J_var}"
+                    "Cost at iteration {}: {}, content {}, style {}, var {}"
+                    .format(i, J_total, J_content, J_style, J_var)
                 )
 
             if i < iterations:
                 optimizer.apply_gradients([(grads, generated_image)])
-                generated_image.assign(
-                    tf.clip_by_value(generated_image, 0.0, 1.0)
-                )
+                clipped = tf.clip_by_value(generated_image, 0.0, 1.0)
+                generated_image.assign(clipped)
 
         return best_image, best_cost
