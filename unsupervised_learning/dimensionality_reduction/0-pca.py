@@ -4,8 +4,11 @@ import numpy as np
 
 
 def pca(X, var=0.95):
-    """Calculates the PCA weights matrix maintaining var fraction of variance."""
+    """
+    Calculates the PCA weights matrix maintaining var fraction of variance
+    """
     u, s, vh = np.linalg.svd(X)
-    cum_var = np.cumsum(s**2) / np.sum(s**2)
+    cum_var = np.cumsum(s) / np.sum(s)
     nd = np.argmax(cum_var >= var) + 1
-    return vh[:nd].T
+    W = vh[:nd].T
+    return W
