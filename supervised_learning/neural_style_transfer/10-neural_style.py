@@ -83,40 +83,43 @@ class NST:
         return tf.expand_dims(image_resized, axis=0)
 
     def load_model(self):
-        """Loads the VGG19 model for style transfer"""
-        vgg = tf.keras.applications.VGG19(
-            include_top=False,
-            weights='imagenet'
-        )
+        """Loads VGG19 model and sets up the outputs for style and content layers"""
+        # 1. Загружаем VGG19 без верхних слоев
+        vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
+        
+        # Замораживаем веса базовой модели
         vgg.trainable = False
 
-        def replace_maxpool(layer):
-            """Replaces MaxPooling2D with AveragePooling2D"""
+        # 2. Список всех целевых слоев
+        style_nodes = self.style_layers
+        content_node = [self.content_layer]
+        target_layers = style_nodes + content_node
+
+        # 3. Реконструируем граф с заменой MaxPooling -> AveragePooling
+        x = vgg.input
+        outputs = []
+
+        # Проходим по всем слоям, кроме InputLayer (vgg.layers[0])
+        for layer in vgg.layers[1:]:
             if isinstance(layer, tf.keras.layers.MaxPooling2D):
-                return tf.keras.layers.AveragePooling2D(
+                # Заменяем MaxPooling на AveragePooling с теми же параметрами
+                x = tf.keras.layers.AveragePooling2D(
                     pool_size=layer.pool_size,
                     strides=layer.strides,
-                    padding=layer.padding
-                )
-            return layer
+                    padding=layer.padding,
+                    name=layer.name
+                )(x)
+            else:
+                layer.trainable = False
+                x = layer(x)
 
-        new_vgg = tf.keras.models.clone_model(
-            vgg,
-            clone_function=replace_maxpool
-        )
-        new_vgg.set_weights(vgg.get_weights())
+            # Собираем выходы нужных слоев
+            if layer.name in target_layers:
+                outputs.append(x)
 
-        style_outputs = [
-            new_vgg.get_layer(name).output for name in self.style_layers
-        ]
-        content_output = new_vgg.get_layer(self.content_layer).output
-
-        model_outputs = style_outputs + [content_output]
-
-        self.model = tf.keras.models.Model(
-            inputs=new_vgg.input,
-            outputs=model_outputs
-        )
+        # 4. Создаем итоговую модель
+        # Входы и выходы должны принадлежать ОДНОМУ и тому же графу (x)
+        self.model = tf.keras.models.Model(inputs=vgg.input, outputs=outputs)
 
     @staticmethod
     def gram_matrix(input_tensor):
