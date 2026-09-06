@@ -7,16 +7,13 @@ expectation_maximization = __import__('8-EM').expectation_maximization
 
 
 def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
-    """
-    Finds the best number of clusters for a GMM using
-    the Bayesian Information Criterion
-    """
+    """Finds the best number of clusters for a GMM using BIC."""
     if not isinstance(X, np.ndarray) or len(X.shape) != 2:
         return None, None, None, None
 
     n, d = X.shape
 
-    if type(kmin) is not int or kmin <= 0 or kmin > n:
+    if type(kmin) is not int or kmin <= 0 or kmin >= n:
         return None, None, None, None
 
     if kmax is None:
@@ -25,22 +22,23 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
     if type(kmax) is not int or kmax <= 0 or kmax > n:
         return None, None, None, None
 
-    if kmin > kmax:
+    if kmin >= kmax:
         return None, None, None, None
 
     if type(iterations) is not int or iterations <= 0:
         return None, None, None, None
 
-    if type(tol) not in [int, float] or tol < 0:
+    if type(tol) not in (int, float) or tol < 0:
         return None, None, None, None
 
     if type(verbose) is not bool:
         return None, None, None, None
 
     num_k = kmax - kmin + 1
-    a = np.zeros(num_k)
-    b = np.zeros(num_k)
+    log_likes = np.zeros(num_k)
+    bics = np.zeros(num_k)
     results = []
+
     for k in range(kmin, kmax + 1):
         pi, m, S, g, log_l = expectation_maximization(
             X, k, iterations, tol, verbose
@@ -50,13 +48,13 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
 
         results.append((pi, m, S))
         idx = k - kmin
-        a[idx] = log_l
+        log_likes[idx] = log_l
 
         p = (k - 1) + (k * d) + (k * d * (d + 1) / 2)
-        b[idx] = p * np.log(n) - (2 * log_l)
+        bics[idx] = p * np.log(n) - (2 * log_l)
 
-    best_index = np.argmin(b)
-    best_k = kmin + best_index
-    best_result = results[best_index]
+    best_idx = np.argmin(bics)
+    best_k = kmin + best_idx
+    best_result = results[best_idx]
 
-    return best_k, best_result, a, b
+    return best_k, best_result, log_likes, bics
