@@ -83,10 +83,13 @@ class NST:
         return tf.expand_dims(image_resized, axis=0)
 
     def load_model(self):
-        """Loads VGG19 model and sets up the outputs for style and content layers"""
+        """
+        Loads VGG19 model and sets up the outputs for style and content layers
+        """
         # 1. Загружаем VGG19 без верхних слоев
-        vgg = tf.keras.applications.VGG19(include_top=False, weights='imagenet')
-        
+        vgg = tf.keras.applications.VGG19(
+            include_top=False, weights='imagenet')
+
         # Замораживаем веса базовой модели
         vgg.trainable = False
 
@@ -135,22 +138,69 @@ class NST:
 
         return gram / n
 
-    def generate_features(self):
-        """Extracts style and content features from reference images"""
-        style_preprocessed = tf.keras.applications.vgg19.preprocess_input(
-            self.style_image * 255.0
-        )
-        content_preprocessed = tf.keras.applications.vgg19.preprocess_input(
-            self.content_image * 255.0
+    def generate_image(self, iterations=2000, step=None, lr=0.01,
+                       beta1=0.9, beta2=0.999):
+        """Generates the neural style transferred image"""
+        if type(iterations) is not int:
+            raise TypeError("iterations must be an integer")
+        if iterations <= 0:
+            raise ValueError("iterations must be positive")
+
+        if step is not None:
+            if type(step) is not int:
+                raise TypeError("step must be an integer")
+            if step <= 0 or step >= iterations:
+                raise ValueError(
+                    "step must be positive and less than iterations"
+                )
+
+        if type(lr) not in [int, float]:
+            raise TypeError("lr must be a number")
+        if lr <= 0:
+            raise ValueError("lr must be positive")
+
+        if type(beta1) is not float:
+            raise TypeError("beta1 must be a float")
+        if not (0 <= beta1 <= 1):
+            raise ValueError("beta1 must be in the range [0, 1]")
+
+        if type(beta2) is not float:
+            raise TypeError("beta2 must be a float")
+        if not (0 <= beta2 <= 1):
+            raise ValueError("beta2 must be in the range [0, 1]")
+
+        generated_image = tf.Variable(self.content_image)
+        optimizer = tf.keras.optimizers.Adam(
+            learning_rate=lr, beta_1=beta1, beta_2=beta2
         )
 
-        style_outputs = self.model(style_preprocessed)[:-1]
-        content_outputs = self.model(content_preprocessed)[-1]
+        best_cost = float('inf')
+        best_image = None
 
-        self.gram_style_features = [
-            self.gram_matrix(style_layer) for style_layer in style_outputs
-        ]
-        self.content_feature = content_outputs
+        for i in range(iterations):
+            with tf.GradientTape() as tape:
+                J_total, J_content, J_style, J_var = (
+                    self.compute_cost(generated_image)
+                )
+
+            grads = tape.gradient(J_total, generated_image)
+            optimizer.apply_gradients([(grads, generated_image)])
+
+            clipped = tf.clip_by_value(generated_image, 0.0, 1.0)
+            generated_image.assign(clipped)
+
+            cost_val = J_total.numpy()
+
+            if cost_val < best_cost:
+                best_cost = cost_val
+                best_image = generated_image.numpy()[0]
+
+            if step is not None and (
+                i == 0 or (i + 1) % step == 0 or i == iterations - 1
+            ):
+                print("Cost at iteration {}: {}".format(i, J_total))
+
+        return best_image, best_cost
 
     def layer_style_cost(self, style_output, gram_style):
         """Calculates the style cost for a single layer"""
