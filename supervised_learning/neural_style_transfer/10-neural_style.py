@@ -88,13 +88,21 @@ class NST:
             include_top=False,
             weights='imagenet'
         )
-
         vgg.trainable = False
 
-        custom_objects = {'Pooling2D': tf.keras.layers.AveragePooling2D}
+        def replace_maxpool(layer):
+            """Replaces MaxPooling2D with AveragePooling2D"""
+            if isinstance(layer, tf.keras.layers.MaxPooling2D):
+                return tf.keras.layers.AveragePooling2D(
+                    pool_size=layer.pool_size,
+                    strides=layer.strides,
+                    padding=layer.padding
+                )
+            return layer
+
         new_vgg = tf.keras.models.clone_model(
             vgg,
-            custom_objects=custom_objects
+            clone_function=replace_maxpool
         )
         new_vgg.set_weights(vgg.get_weights())
 
@@ -193,6 +201,10 @@ class NST:
     @staticmethod
     def variational_cost(generated_image):
         """Calculates the variational cost for the generated image"""
+        if not isinstance(generated_image, (tf.Tensor, tf.Variable)) or \
+                len(generated_image.shape) not in (3, 4):
+            raise TypeError("generated_image must be a tensor of rank 3 or 4")
+
         return tf.image.total_variation(generated_image)
 
     def total_cost(self, generated_image):
