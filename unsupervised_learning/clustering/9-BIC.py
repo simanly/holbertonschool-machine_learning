@@ -13,7 +13,7 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
 
     n, d = X.shape
 
-    if type(kmin) is not int or kmin <= 0 or kmin >= n:
+    if type(kmin) is not int or kmin <= 0 or kmin > n:
         return None, None, None, None
 
     if kmax is None:
@@ -22,13 +22,13 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
     if type(kmax) is not int or kmax <= 0 or kmax > n:
         return None, None, None, None
 
-    if kmin >= kmax:
+    if kmin > kmax:
         return None, None, None, None
 
     if type(iterations) is not int or iterations <= 0:
         return None, None, None, None
 
-    if type(tol) not in (int, float) or tol < 0:
+    if type(tol) not in (int, float) or type(tol) is bool or tol < 0:
         return None, None, None, None
 
     if type(verbose) is not bool:
@@ -40,18 +40,18 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
     results = []
 
     for k in range(kmin, kmax + 1):
-        pi, m, S, g, log_l = expectation_maximization(
+        pi, m, S, g, log_like = expectation_maximization(
             X, k, iterations, tol, verbose
         )
-        if pi is None or m is None or S is None or log_l is None:
+        if pi is None or m is None or S is None or log_like is None:
             return None, None, None, None
 
         results.append((pi, m, S))
         idx = k - kmin
-        log_likes[idx] = log_l
+        log_likes[idx] = log_like
 
-        p = (k - 1) + (k * d) + (k * d * (d + 1) / 2)
-        bics[idx] = p * np.log(n) - (2 * log_l)
+        p = (k - 1) + (k * d) + (k * d * (d + 1) // 2)
+        bics[idx] = p * np.log(n) - (2 * log_like)
 
     best_idx = np.argmin(bics)
     best_k = kmin + best_idx
