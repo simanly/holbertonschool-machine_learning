@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Trains a Word2Vec model."""
-from gensim.models import Word2Vec
+import gensim
 
 
 def word2vec_model(
@@ -14,8 +14,8 @@ def word2vec_model(
     seed=0,
     workers=1,
 ):
-    """Creates, builds, and trains a gensim Word2Vec model[cite: 2]."""
-    return Word2Vec(
+    """Creates, builds, and trains a gensim Word2Vec model."""
+    return gensim.models.Word2Vec(
         sentences=sentences,
         vector_size=vector_size,
         min_count=min_count,
