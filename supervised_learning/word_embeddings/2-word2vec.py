@@ -15,14 +15,20 @@ def word2vec_model(
     workers=1,
 ):
     """Creates, builds, and trains a gensim Word2Vec model."""
-    return gensim.models.Word2Vec(
-        sentences=sentences,
+    sg = 0 if cbow else 1
+    model = gensim.models.Word2Vec(
         vector_size=vector_size,
         min_count=min_count,
         window=window,
         negative=negative,
-        sg=0 if cbow else 1,
-        epochs=epochs,
+        sg=sg,
         seed=seed,
         workers=workers,
     )
+    model.build_vocab(sentences)
+    model.train(
+        sentences,
+        total_examples=model.corpus_count,
+        epochs=epochs,
+    )
+    return model
